@@ -26,25 +26,21 @@ for page_num in range(1, 114):
     soup = BeautifulSoup(response.text, 'html.parser')
     sleep(1)
 
-    # 各物件の情報をループ
+    #同一ページ内の各物件の情報をループ
     for property_row in soup.find_all('div', class_='cassetteitem'):
         property_name = property_row.find('div', class_='cassetteitem_content-title').text.strip()  # 物件名
         address = property_row.find('li', class_='cassetteitem_detail-col1').text.strip()  # 住所
-        #access = ' '.join([div.text.strip() for div in property_row.find_all('div', class_='cassetteitem_detail-text')])  # アクセス
-        #age = property_row.find('li', class_='cassetteitem_detail-col3').div.text.strip()  # 築年数
 
         # 同じ物件の異なる部屋情報を取得
         for room_row in property_row.find_all('tbody')[0].find_all('tr'):
             floor = room_row.find_all('td')[2].text.strip()  # 階数
             rent = room_row.find_all('td')[3].text.strip()  # 家賃
-            #management_fee = room_row.find_all('td')[4].text.strip() if room_row.find_all('td')[4].text.strip() != '-' else '0円'  # 管理費
             layout = room_row.find_all('td')[6].text.strip()  # 間取り
-            #size = room_row.find_all('td')[7].text.strip()  # 広さ
 
-            # 新しい行を作成してDataFrameに追加
+            # 新しい行を作成してまとめ用のDataFrameに追加
             data= [property_name, address,layout,rent,floor]
-            new_row = pd.DataFrame([data],columns=columns_prop)
-            df = pd.concat([df, new_row], ignore_index=True)
+            tmp = pd.DataFrame([data],columns=columns_prop)
+            df = pd.concat([df, tmp], ignore_index=True)
 
     n+=1
     print(n)
