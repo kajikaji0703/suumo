@@ -30,7 +30,7 @@ for page_num in range(1, 114):
     for property_row in soup.find_all('div', class_='cassetteitem'):
         property_name = property_row.find('div', class_='cassetteitem_content-title').text.strip()  # 物件名
         address = property_row.find('li', class_='cassetteitem_detail-col1').text.strip()  # 住所
-
+        access = ' '.join([div.text.strip() for div in property_row.find_all('div', class_='cassetteitem_detail-text')])  # アクセス
         age = property_row.find('li', class_='cassetteitem_detail-col3').div.text.strip()  # 築年数
         
         # 同じ物件の異なる部屋情報を取得
