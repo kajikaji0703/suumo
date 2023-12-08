@@ -46,8 +46,9 @@ for page_num in range(1, 114):
             tmp = pd.DataFrame([data],columns=columns_prop)
             df = pd.concat([df, tmp], ignore_index=True)
 
+
     n+=1
     print(n)
        
 # DataFrameをCSVファイルに出力
-df.to_csv('suumo_data.csv' , index=False, encoding='utf-8-sig')
+df.to_csv('suumo_data2.csv' , index=False, encoding='utf-8-sig')
