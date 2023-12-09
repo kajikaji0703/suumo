@@ -52,4 +52,4 @@ for page_num in range(1, 114):
     
     
 # DataFrameをCSVファイルに出力
-df.to_csv('suumo_data2.csv' , index=False, encoding='utf-8-sig')
+df.to_csv('suumo_data.csv' , index=False, encoding='utf-8-sig')
