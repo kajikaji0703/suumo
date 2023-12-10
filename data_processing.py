@@ -8,6 +8,7 @@ Created on Sat Dec  9 13:50:42 2023
 import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
+from gspread_dataframe import set_with_dataframe
 
 df = pd.read_csv("suumo_data.csv")
 
@@ -99,4 +100,5 @@ client = gspread.authorize(creds)
 sheet = client.open('suumo_data').sheet1
 
 # データを書き込む
-sheet.update(df_unique)
+# DataFrameをスプレッドシートに書き込む
+set_with_dataframe(sheet, df_unique)
