@@ -16,7 +16,6 @@ for prop in  columns_prop:
     tmp =pd.Series(name=prop,data=df[prop].unique())
     prop_list.append(tmp)
     
-
 #################データのクレンジング############################################
 """
 各物件情報に含まれる値を調べてた結果は以下
@@ -35,7 +34,7 @@ for prop in  columns_prop:
 
 #物件名#
 #住所が　同じで　違名のものは　実際は　同じ物件とする
-# ⇒　同じ住所で違う物件がある？住所だけでは名寄せできない。築年数、構造は少なくとも見ないと
+# ⇒　同じ住所で違う物件がある？住所だけでは名寄せできない。築年数、構造は少なくとも見ないと 
 mansion_id_list = []
 dup_list =[]
 df["マンション名名寄せ"]=df["住所"]+"_"+df["築年数"]+"_"+df["構造"]
@@ -68,14 +67,17 @@ df["階数"]= df["階数"].apply(lambda x: x.rstrip("階")).astype("float")
 #アクセス#
 df["アクセス"]= df["アクセス"].apply(lambda x: x.split("分 "))
 df["アクセス"]= df["アクセス"].apply(lambda x: [item.rstrip("分") if i == (len(x) - 1) else item for i, item in enumerate(x)])
+df["アクセス"]= df["アクセス"].apply(lambda x:  [int(acs[-3:].lstrip(" ").lstrip("歩")) for acs in x])
+df["アクセス"]= df["アクセス"].apply(lambda x:  len([num for num in x if num <= 10]))
 
-###########################################################
+#間取り
+df["間取り"]= df["間取り"].replace("ワンルーム","1R")
 
-################データの重複削除###############
+################データの重複削除################
 check_prop =  ["住所","間取り","階数","面積","家賃"] #重複削除に使う物件情報
 df['物件番号'] = df.groupby(check_prop).ngroup() #同一物件に同じ番号をナンバリング
 df_unique = df.drop_duplicates(subset='物件番号')
 
-#重複削除した物件データ
+#重複削除した物件データを
 df = df.drop(["マンション名名寄せ","物件番号"],axis=1)
 df.to_csv("suumo_data_modify.csv")
