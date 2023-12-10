@@ -15,7 +15,7 @@ url = "https://suumo.jp/jj/chintai/ichiran/FR301FC001/?ar=030&bs=040&ta=13&sc=13
 
 #情報格納用の　DFを作成する
 #columns_prop = ["物件名", "住所","間取り","家賃","階数"]
-columns_prop = ["物件名", "住所","アクセス","築年数","構造","階数","間取り","面積","家賃","管理費"]
+columns_prop = ["マンション名", "住所","アクセス","築年数","構造","階数","間取り","面積","家賃","管理費"]
 df = pd.DataFrame(columns= columns_prop)
 
 n=0
