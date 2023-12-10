@@ -17,7 +17,7 @@ for prop in  columns_prop:
     prop_list.append(tmp)
     
 
-##データのクレンジング###########################################################
+#################データのクレンジング############################################
 """
 各物件情報に含まれる値を調べてた結果は以下
 物件名：　物件名称の代わりに　”都営大江戸線 飯田橋駅 15階建 築19年”のように　物件のプロパティを並べて記載してるものがある
@@ -43,12 +43,12 @@ tmp_list = df["マンション名名寄せ"].unique()
 for  mansion_id  in tmp_list:
     tmp = df[df["マンション名名寄せ"]==mansion_id]
     mansion_id_list.append(tmp)
-    tmp_dup= tmp["物件名"].unique()
+    tmp_dup= tmp["マンション名"].unique()
     if len(tmp_dup) > 1: 
         tmp_dup = sorted(tmp_dup, key=len, reverse=False)
         dup_list.append(tmp_dup) #物件名の重複リスト
 for  same_mansion  in dup_list:
-    df["物件名"]= df["物件名"].apply(lambda x: same_mansion[0] if x == same_mansion[1] else x)
+    df["マンション名"]= df["マンション名"].apply(lambda x: same_mansion[0] if x == same_mansion[1] else x)
 
 #面積#
 df["面積"]= df["面積"].apply(lambda x: x.rstrip("m2")).astype("float")
@@ -71,8 +71,11 @@ df["アクセス"]= df["アクセス"].apply(lambda x: [item.rstrip("分") if i 
 
 ###########################################################
 
-#データの重複削除
+################データの重複削除###############
 check_prop =  ["住所","間取り","階数","面積","家賃"] #重複削除に使う物件情報
 df['物件番号'] = df.groupby(check_prop).ngroup() #同一物件に同じ番号をナンバリング
 df_unique = df.drop_duplicates(subset='物件番号')
 
+#重複削除した物件データ
+df = df.drop(["マンション名名寄せ","物件番号"],axis=1)
+df.to_csv("suumo_data_modify.csv")
