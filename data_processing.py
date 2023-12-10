@@ -48,11 +48,11 @@ for  mansion_id  in tmp_list:
         dup_list.append(tmp_dup) #物件名の重複リスト
 for  same_mansion  in dup_list:
     df["マンション名"]= df["マンション名"].apply(lambda x: same_mansion[0] if x == same_mansion[1] else x)
-
 #面積#
 df["面積"]= df["面積"].apply(lambda x: x.rstrip("m2")).astype("float")
 #家賃#
 df["家賃"]= df["家賃"].apply(lambda x: x.rstrip("万円")).astype("float")
+df["家賃"]= df["家賃"].apply(lambda x: x*10000)
 #管理費#
 df["管理費"]= df["管理費"].replace("-","0")
 df["管理費"]= df["管理費"].apply(lambda x: x.rstrip("円")).astype("int")
@@ -69,9 +69,9 @@ df["アクセス"]= df["アクセス"].apply(lambda x: x.split("分 "))
 df["アクセス"]= df["アクセス"].apply(lambda x: [item.rstrip("分") if i == (len(x) - 1) else item for i, item in enumerate(x)])
 df["アクセス"]= df["アクセス"].apply(lambda x:  [int(acs[-3:].lstrip(" ").lstrip("歩")) for acs in x])
 df["アクセス"]= df["アクセス"].apply(lambda x:  len([num for num in x if num <= 10]))
-
 #間取り
 df["間取り"]= df["間取り"].replace("ワンルーム","1R")
+
 
 ################データの重複削除################
 check_prop =  ["住所","間取り","階数","面積","家賃"] #重複削除に使う物件情報
