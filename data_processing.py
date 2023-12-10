@@ -6,6 +6,8 @@ Created on Sat Dec  9 13:50:42 2023
 """
 
 import pandas as pd
+import gspread
+from google.oauth2.service_account import Credentials
 
 df = pd.read_csv("suumo_data.csv")
 
@@ -63,9 +65,10 @@ df["築年数"]= df["築年数"].apply(lambda x: x.replace("築","").replace("�
 df["構造"]= df["構造"].apply(lambda x: sum([int(num) for num in (x.lstrip("地下").rstrip("階建").split("地上"))]) 
                         if x.startswith("地下") else int(x.rstrip("階建")))#階数
 df["階数"]= df["階数"].replace("1-2階","1.5階")
+df["階数"]= df["階数"].replace("5-6階","5.5階")
 df["階数"]= df["階数"].apply(lambda x: x.rstrip("階")).astype("float")
 #アクセス#
-df["アクセス"]= df["アクセス"].apply(lambda x: x.split("分 "))
+df["アクセス"]= df["アクセス"].apply(lambda x: x.rstrip().split("分 "))
 df["アクセス"]= df["アクセス"].apply(lambda x: [item.rstrip("分") if i == (len(x) - 1) else item for i, item in enumerate(x)])
 df["アクセス"]= df["アクセス"].apply(lambda x:  [int(acs[-3:].lstrip(" ").lstrip("歩")) for acs in x])
 df["アクセス"]= df["アクセス"].apply(lambda x:  len([num for num in x if num <= 10]))
@@ -79,5 +82,21 @@ df['物件番号'] = df.groupby(check_prop).ngroup() #同一物件に同じ番�
 df_unique = df.drop_duplicates(subset='物件番号')
 
 #重複削除した物件データを
-df = df.drop(["マンション名名寄せ","物件番号"],axis=1)
-df.to_csv("suumo_data_modify.csv")
+df_unique = df.drop(["マンション名名寄せ","物件番号"],axis=1)
+df_unique.to_csv("suumo_data_modify.csv")
+
+###### Google Spreadsheet にアップロード　########
+# スコープの設定
+scopes = [
+    'https://www.googleapis.com/auth/spreadsheets',
+    'https://www.googleapis.com/auth/drive'
+    ]
+# サービスアカウントキーのファイルを指定
+creds = Credentials.from_service_account_file('./innate-benefit-407706-54fee2119a6b.json',scopes=scopes)
+client = gspread.authorize(creds)
+
+# スプレッドシートを開く
+sheet = client.open('suumo_data').sheet1
+
+# データを書き込む
+sheet.update(df_unique)
