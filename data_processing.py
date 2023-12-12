@@ -9,6 +9,7 @@ import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
 from gspread_dataframe import set_with_dataframe
+from sqlalchemy import create_engine
 
 df = pd.read_csv("suumo_data.csv")
 
@@ -102,3 +103,17 @@ sheet = client.open('suumo_data').sheet1
 # データを書き込む
 # DataFrameをスプレッドシートに書き込む
 set_with_dataframe(sheet, df_unique)
+
+####### データを RDBMSに書き込む　###############
+
+# データベースの接続情報を設定
+username = 'root'
+password = 'magu01640703'
+host = '127.0.0.1'
+database = 'suumo_rental_data'
+
+# SQLAlchemyエンジンを作成
+engine = create_engine(f"mysql+mysqlconnector://{username}:{password}@{host}/{database}")
+
+# DataFrameをMySQLデータベースに書き込む
+df_unique.to_sql('suumo_data', con=engine, if_exists='replace', index=False)
