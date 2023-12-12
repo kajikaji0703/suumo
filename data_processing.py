@@ -10,6 +10,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 from gspread_dataframe import set_with_dataframe
 from sqlalchemy import create_engine
+import re
 
 df = pd.read_csv("suumo_data.csv")
 
@@ -65,10 +66,11 @@ df["築年数"]= df["築年数"].replace("新築","築0年")
 df["築年数"]= df["築年数"].apply(lambda x: x.replace("築","").replace("年","")).astype("int")
 #構造#
 df["構造"]= df["構造"].apply(lambda x: sum([int(num) for num in (x.lstrip("地下").rstrip("階建").split("地上"))]) 
-                        if x.startswith("地下") else int(x.rstrip("階建")))#階数
-df["階数"]= df["階数"].replace("1-2階","1.5階")
-df["階数"]= df["階数"].replace("5-6階","5.5階")
-df["階数"]= df["階数"].apply(lambda x: x.rstrip("階")).astype("float")
+                        if x.startswith("地下") else int(x.rstrip("階建")))
+#階数
+df["階数"]= df["階数"].apply(lambda x: x.rstrip("階"))
+df["階数"]= df["階数"].apply(lambda x: sum([int(num) for num in x.split('-')])/2 if re.match(".*-.*",x) else x)
+df["階数"]= df["階数"].astype("float")
 #アクセス#
 df["アクセス"]= df["アクセス"].apply(lambda x: x.rstrip().split("分 "))
 df["アクセス"]= df["アクセス"].apply(lambda x: [item.rstrip("分") if i == (len(x) - 1) else item for i, item in enumerate(x)])
@@ -86,6 +88,7 @@ df_unique = df.drop_duplicates(subset='物件番号')
 #重複削除した物件データを
 df_unique = df.drop(["マンション名名寄せ","物件番号"],axis=1)
 df_unique.to_csv("suumo_data_modify.csv")
+
 
 ###### Google Spreadsheet にアップロード　########
 # スコープの設定
