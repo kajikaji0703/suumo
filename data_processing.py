@@ -79,7 +79,6 @@ df["アクセス"]= df["アクセス"].apply(lambda x:  len([num for num in x if
 #間取り
 df["間取り"]= df["間取り"].replace("ワンルーム","1R")
 
-
 ################データの重複削除################
 check_prop =  ["住所","間取り","階数","面積","家賃"] #重複削除に使う物件情報
 df['物件番号'] = df.groupby(check_prop).ngroup() #同一物件に同じ番号をナンバリング
@@ -111,7 +110,7 @@ set_with_dataframe(sheet, df_unique)
 
 # データベースの接続情報を設定
 username = 'root'
-password = 'magu01640703'
+password = '*'
 host = '127.0.0.1'
 database = 'suumo_rental_data'
 
