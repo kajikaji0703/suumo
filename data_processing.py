@@ -11,11 +11,12 @@ from google.oauth2.service_account import Credentials
 from gspread_dataframe import set_with_dataframe
 from sqlalchemy import create_engine
 import re
+import sqlite3
 
 df = pd.read_csv("suumo_data.csv")
 
 #　各物件　の特性の値に　どのような種類の値が含まれるのかを確認し、データクレンジングの必要性、やり方を検討する
-columns_prop = ["マンション名", "住所","アクセス","築年数","構造","階数","間取り","面積","家賃","管理費"]
+columns_prop = ["マンション名", "住所","アクセス","アクセス1","アクセス2","アクセス3","築年数","構造","階数","間取り","面積","家賃","管理費"]
 prop_list = []
 for prop in  columns_prop:
     tmp =pd.Series(name=prop,data=df[prop].unique())
@@ -76,6 +77,12 @@ df["アクセス"]= df["アクセス"].apply(lambda x: x.rstrip().split("分 "))
 df["アクセス"]= df["アクセス"].apply(lambda x: [item.rstrip("分") if i == (len(x) - 1) else item for i, item in enumerate(x)])
 df["アクセス"]= df["アクセス"].apply(lambda x:  [int(acs[-3:].lstrip(" ").lstrip("歩")) for acs in x])
 df["アクセス"]= df["アクセス"].apply(lambda x:  len([num for num in x if num <= 10]))
+#アクセス分解
+#アクセスから路線・駅名・徒歩時間を抽出
+df[['access1_line', 'access1_station', 'access1_walk']] = df["アクセス1"].str.extract(r'(.+?)/(.+?) 歩(.+?)分')
+df[['access2_line', 'access2_station', 'access2_walk']] = df["アクセス2"].str.extract(r'(.+?)/(.+?) 歩(.+?)分')
+df[['access3_line', 'access3_station', 'access3_walk']] = df["アクセス3"].str.extract(r'(.+?)/(.+?) 歩(.+?)分')
+
 #間取り
 df["間取り"]= df["間取り"].replace("ワンルーム","1R")
 
@@ -89,33 +96,50 @@ df_unique = df.drop(["マンション名名寄せ","物件番号"],axis=1)
 df_unique.to_csv("suumo_data_modify.csv")
 
 
-###### Google Spreadsheet にアップロード　########
-# スコープの設定
-scopes = [
-    'https://www.googleapis.com/auth/spreadsheets',
-    'https://www.googleapis.com/auth/drive'
-    ]
-# サービスアカウントキーのファイルを指定
-creds = Credentials.from_service_account_file('./innate-benefit-407706-54fee2119a6b.json',scopes=scopes)
-client = gspread.authorize(creds)
-
-# スプレッドシートを開く
-sheet = client.open('suumo_data').sheet1
-
-# データを書き込む
-# DataFrameをスプレッドシートに書き込む
-set_with_dataframe(sheet, df_unique)
+if False:
+    ###### Google Spreadsheet にアップロード　########
+    # スコープの設定
+    scopes = [
+        'https://www.googleapis.com/auth/spreadsheets',
+        'https://www.googleapis.com/auth/drive'
+        ]
+    # サービスアカウントキーのファイルを指定
+    creds = Credentials.from_service_account_file('./innate-benefit-407706-54fee2119a6b.json',scopes=scopes)
+    client = gspread.authorize(creds)
+    
+    # スプレッドシートを開く
+    sheet = client.open('suumo_data').sheet1
+    
+    # データを書き込む
+    # DataFrameをスプレッドシートに書き込む
+    set_with_dataframe(sheet, df_unique)
 
 ####### データを RDBMSに書き込む　###############
 
-# データベースの接続情報を設定
-username = 'root'
-password = '*'
-host = '127.0.0.1'
-database = 'suumo_rental_data'
+if False:
+    # データベースの接続情報を設定
+    username = 'root'
+    password = '*'
+    host = '127.0.0.1'
+    database = 'suumo_rental_data'
+    
+    # SQLAlchemyエンジンを作成
+    engine = create_engine(f"mysql+mysqlconnector://{username}:{password}@{host}/{database}")
+    
+    # DataFrameをMySQLデータベースに書き込む
+    df_unique.to_sql('suumo_data', con=engine, if_exists='replace', index=False)
+    
+# STEP_3B：dfをRDBのSQLiteに書き込む
 
-# SQLAlchemyエンジンを作成
-engine = create_engine(f"mysql+mysqlconnector://{username}:{password}@{host}/{database}")
+# databaseに接続する。指定したdatabaseが存在しない場合は、新規作成される。
+conn = sqlite3.connect('suumo.db')
+# 物件情報が入ったdfをsqlに書き出す。
+df.to_sql('suumo', conn, if_exists='replace', index=False)
 
-# DataFrameをMySQLデータベースに書き込む
-df_unique.to_sql('suumo_data', con=engine, if_exists='replace', index=False)
+# databaseをクエリで実行した結果を読み込み、df_from_sqliteに代入。printで出力する。
+query = "SELECT * FROM suumo"
+df_from_sqlite = pd.read_sql(query, conn)
+print(df_from_sqlite)
+
+#databaseとの接続を終了
+conn.close()
