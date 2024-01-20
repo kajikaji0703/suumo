@@ -15,7 +15,7 @@ url = "https://suumo.jp/jj/chintai/ichiran/FR301FC001/?ar=030&bs=040&ta=13&sc=13
 
 #情報格納用の　DFを作成する
 #columns_prop = ["物件名", "住所","間取り","家賃","階数"]
-columns_prop = ["マンション名", "住所","アクセス","築年数","構造","階数","間取り","面積","家賃","管理費"]
+columns_prop = ["マンション名", "住所","アクセス","アクセス1","アクセス2","アクセス3","築年数","構造","階数","間取り","面積","家賃","管理費"]
 df = pd.DataFrame(columns= columns_prop)
 
 n=0
@@ -32,6 +32,10 @@ for page_num in range(1, 114):
         property_name = property_row.find('div', class_='cassetteitem_content-title').text.strip()  # 物件名
         address = property_row.find('li', class_='cassetteitem_detail-col1').text.strip()  # 住所
         access = ' '.join([div.text.strip() for div in property_row.find_all('div', class_='cassetteitem_detail-text')])  # アクセス
+        # アクセス分解
+        access1 = property_row.find_all('div', class_='cassetteitem_detail-text')[0].text
+        access2 = property_row.find_all('div', class_='cassetteitem_detail-text')[1].text
+        access3 = property_row.find_all('div', class_='cassetteitem_detail-text')[2].text
         age = property_row.find('li', class_='cassetteitem_detail-col3').div.text.strip()  # 築年数
         structure = [div.text.strip() for div in property_row.find('li', class_='cassetteitem_detail-col3').find_all('div')][1]
         
@@ -47,7 +51,7 @@ for page_num in range(1, 114):
             #management_fee = room_row.find_all('td')[4].text.strip() if room_row.find_all('td')[4].text.strip() != '-' else '0円'  # 管理費
             
             # 新しい行を作成してまとめ用のDataFrameに追加
-            data= [property_name, address,access,age,structure,floor,layout,size,rent,management_fee]
+            data= [property_name, address,access,access1,access2,access3,age,structure,floor,layout,size,rent,management_fee]
             tmp = pd.DataFrame([data],columns=columns_prop)
             df = pd.concat([df, tmp], ignore_index=True)
 
