@@ -11,7 +11,9 @@ import pandas as pd
 from time import sleep
 
 #東京都の　文京区に絞って物件表示
-url = "https://suumo.jp/jj/chintai/ichiran/FR301FC001/?ar=030&bs=040&ta=13&sc=13105&cb=0.0&ct=9999999&et=9999999&cn=9999999&mb=0&mt=9999999&shkr1=03&shkr2=03&shkr3=03&shkr4=03&fw2="
+#url = "https://suumo.jp/jj/chintai/ichiran/FR301FC001/?ar=030&bs=040&ta=13&sc=13105&cb=0.0&ct=9999999&et=9999999&cn=9999999&mb=0&mt=9999999&shkr1=03&shkr2=03&shkr3=03&shkr4=03&fw2="
+#東京23区全部
+url = "https://suumo.jp/jj/chintai/ichiran/FR301FC001/?ar=030&bs=040&ta=13&sc=13101&sc=13102&sc=13103&sc=13104&sc=13105&sc=13113&sc=13106&sc=13107&sc=13108&sc=13118&sc=13121&sc=13122&sc=13123&sc=13109&sc=13110&sc=13111&sc=13112&sc=13114&sc=13115&sc=13120&sc=13116&sc=13117&sc=13119&cb=0.0&ct=9999999&mb=0&mt=9999999&et=9999999&cn=9999999&shkr1=03&shkr2=03&shkr3=03&shkr4=03&sngz=&po1=25&pc=50"
 
 #情報格納用の　DFを作成する
 #columns_prop = ["物件名", "住所","間取り","家賃","階数"]
@@ -19,8 +21,11 @@ columns_prop = ["マンション名", "住所","アクセス","アクセス1","�
 df = pd.DataFrame(columns= columns_prop)
 
 n=0
+
+page_num = 2525
+
 # 1ページから114ページまでスクレイピング
-for page_num in range(1, 114):
+for page_num in range(1, page_num):
     # ページ番号をURLに組み込む
     url = f"{url}&page={page_num}"
     response = requests.get(url)
@@ -55,11 +60,9 @@ for page_num in range(1, 114):
             tmp = pd.DataFrame([data],columns=columns_prop)
             df = pd.concat([df, tmp], ignore_index=True)
 
-
     n+=1
     print(n)
-    
-    
+       
     
 # DataFrameをCSVファイルに出力
-df.to_csv('suumo_data.csv' , index=False, encoding='utf-8-sig')
+df.to_csv('suumo_data_all.csv' , index=False, encoding='utf-8-sig')
