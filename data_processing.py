@@ -13,7 +13,7 @@ from sqlalchemy import create_engine
 import re
 import sqlite3
 
-df = pd.read_csv("suumo_data.csv")
+df = pd.read_csv("suumo_data_all.csv")
 
 #　各物件　の特性の値に　どのような種類の値が含まれるのかを確認し、データクレンジングの必要性、やり方を検討する
 columns_prop = ["マンション名", "住所","アクセス","アクセス1","アクセス2","アクセス3","築年数","構造","階数","間取り","面積","家賃","管理費"]
@@ -85,13 +85,16 @@ df[['access3_line', 'access3_station', 'access3_walk']] = df["アクセス3"].st
 
 #間取り
 df["間取り"]= df["間取り"].replace("ワンルーム","1R")
+#区を抜き出す
+df['区'] = df['住所'].str.extract(r'東京都(.+?区)')
+
 
 ################データの重複削除################
 check_prop =  ["住所","間取り","階数","面積","家賃"] #重複削除に使う物件情報
 df['物件番号'] = df.groupby(check_prop).ngroup() #同一物件に同じ番号をナンバリング
 df_unique = df.drop_duplicates(subset='物件番号')
 
-#重複削除した物件データを
+#重複削除した物件データを削除する
 df_unique = df.drop(["マンション名名寄せ","物件番号"],axis=1)
 df_unique.to_csv("suumo_data_modify.csv")
 
