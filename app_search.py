@@ -56,7 +56,8 @@ with col3:
     st.button('Login', type='secondary')
 
 # タイトル
-st.title('物件情報検索アプリ')
+st.title('賃貸物件情報検索')
+
 # アプリ概要説明
 st.write('山手線沿線で、2DK以上の2人暮らし向け賃貸を、重複なく効率よく探すことができます。')
 
@@ -70,7 +71,7 @@ station_select = st.sidebar.multiselect('希望の最寄駅を選択してくだ
 # 賃料
 st.sidebar.text('2.賃料')
 min_rent, max_rent = st.sidebar.slider(
-    '賃料（万円）の範囲を入力してください',
+    '賃料（万円）の範囲を指定してください',
     min_value = 0,
     max_value = 30,
     value = (0, 30))
@@ -80,7 +81,7 @@ max_rent_yen = max_rent * 10000
 # 駅徒歩
 st.sidebar.text('3.駅徒歩')
 min_walk_time, max_walk_time = st.sidebar.slider(
-    '駅徒歩時間（分）の範囲を入力してください',
+    '駅徒歩時間（分）の範囲を指定してください',
     min_value = 0,
     max_value = 30,
     value = (0, 30))
@@ -92,7 +93,7 @@ madori_select = st.sidebar.multiselect('希望の間取りを選択してくだ�
 # 築年数
 st.sidebar.text('5.築年数')
 min_age, max_age = st.sidebar.slider(
-    '築年数の範囲を入力してください',
+    '築年数の範囲を入指定してください',
     min_value = 0,
     max_value = 100,
     value = (0, 50))
@@ -100,7 +101,7 @@ min_age, max_age = st.sidebar.slider(
 # 占有面積
 st.sidebar.text('6.占有面積')
 min_menseki, max_menseki = st.sidebar.slider(
-    '占有面積（m2）の範囲を入力してください',
+    '占有面積（m2）の範囲を入指定してください',
     min_value = 0,
     max_value = 150,
     value = (0, 75))
