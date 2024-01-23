@@ -26,13 +26,16 @@ def load_data():
 df = load_data()
 
 # 希望条件
-
 #区リスト
-district_list ={
+region_list ={
     "足立区"	,"墨田区","荒川区", "世田谷区","板橋区","台東区",
     "江戸川区","千代田区","大田区","中央区","葛飾区","豊島区","北区",
     "中野区","江東区","練馬区","品川区","文京区","渋谷区","港区",
     "新宿区"	,"目黒区","杉並区"}
+
+#沿線リスト
+line_list = []
+
 
 # 駅リスト
 station_list = [
@@ -47,27 +50,43 @@ madori_list = [
     '3K', '3DK', '3LDK', '3SK', '3SDK', '3SLDK',
     '4K', '4LDK', '4SK',  '4SLDK'
     ]
-
+"""
 # 会員登録・Loginボタンを画面右上に配置
 col1, col2, col3 = st.columns([9,2,2])
 with col2:
     st.button('会員登録', type='secondary')
 with col3:
     st.button('Login', type='secondary')
+"""
 
 # タイトル
 st.title('賃貸物件情報検索')
 
 # アプリ概要説明
-st.write('山手線沿線で、2DK以上の2人暮らし向け賃貸を、重複なく効率よく探すことができます。')
+st.write('東京23区内の賃貸物件を、重複なく効率よく探すことができます。')
 
 # 以下、サイドバーで希望の条件を入力する枠を用意
 st.sidebar.title('希望条件を入力してください')
 
+# サイドバーで「地域」と「駅」の選択肢を提供
+option = st.sidebar.radio("検索条件を選んでください：", ('地域', '駅'))
+
+# 選択肢に応じてセレクトボックスを更新
+if option == '地域':
+    # 地域の選択肢を提供
+    st.sidebar.text('1.地域')
+    region_select = st.sidebar.multiselect('希望の地域を選択してください（複数選択可）', region_list)
+    # ...
+elif option == '駅':
+    # 駅の選択肢を提供
+    st.sidebar.text('1.最寄駅')
+    station_select = st.sidebar.multiselect('希望の最寄駅を選択してください（複数選択可）', station_list)
+
+"""
 # 最寄駅
 st.sidebar.text('1.最寄駅')
 station_select = st.sidebar.multiselect('希望の最寄駅を選択してください（複数選択可）', station_list)
-
+"""
 # 賃料
 st.sidebar.text('2.賃料')
 min_rent, max_rent = st.sidebar.slider(
@@ -111,7 +130,7 @@ button = st.sidebar.button('検索',type = 'primary')
 
 # 検索条件でデータを絞り込み、結果を df_search に代入
 df_search = df.query(
-    f'(access1_station == {station_select}) and ({min_rent_yen} <= rent <= {max_rent_yen}) and ({min_walk_time} <= access1_walk <= {max_walk_time}) and (madori == {madori_select}) and ({min_age} <= age <= {max_age})  and ({min_menseki} <= menseki <= {max_menseki})')
+    f'(アクセス1 == {station_select}) or (区 == {region_select}) and ({min_rent_yen} <= 家賃 <= {max_rent_yen}) and ({min_walk_time} <= access1_walk <= {max_walk_time}) and (間取り == {madori_select}) and ({min_age} <= 築年数 <= {max_age})  and ({min_menseki} <= 面積 <= {max_menseki})')
 # 検索結果のヒット件数を取得
 hit = len(df_search)
 
