@@ -1,5 +1,9 @@
-pandas
-sqlalchemy
-streamlit
+pandas == 1.5.3
+sqlalchemy == 1.4.39
+streamlit == 1.30.0
 sqlite3
 os
+folium == 0.15.1
+streamlit_folium ==0.18.0
+requests == 2.31.0
+urllib == 1.26.16
