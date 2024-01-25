@@ -4,4 +4,3 @@ streamlit == 1.30.0
 folium == 0.15.1
 streamlit_folium ==0.18.0
 requests == 2.31.0
-urllib
